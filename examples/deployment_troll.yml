@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: puntworker
+  labels:
+      app: puntworker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: puntworker
+  strategy:
+      type: Recreate
+  template:
+    metadata:
+      labels:
+        app: puntworker
+    spec:
+      containers:
+      - image: untzakoncrg.azurecr.io/puntworker:11
+        name: puntworker
+        env:
+          - name: ConnectionStrings__Redis
+            value: punter-redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: puntman
+  labels:
+    app: puntman
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: puntman
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: puntman
+  labels:
+      app: puntman
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: puntman
+  strategy:
+      type: Recreate
+  template:
+    metadata:
+      labels:
+        app: puntman
+    spec:
+      containers:
+      - image: untzakoncrg.azurecr.io/puntman:22
+        name: puntman
+        env:
+          - name: ConnectionStrings__Redis
+            value: punter-redis
+        ports:
+            - containerPort: 80
+              name: puntman

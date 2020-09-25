@@ -1,0 +1,31 @@
+﻿@using puntman.Models
+@using puntman.Data
+@inject PunService _punService
+@page "/"
+
+<h1>Puntzakon is the #1 Pun to Sebastian sending service in the world</h1>
+
+<EditForm Model="@punViewModel" OnSubmit="@onSubmit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+  <div class="form-group">
+    <label for="pun">Lead</label>
+    <InputText type="text" @bind-Value="punViewModel.Lead" class="form-control" id="pun" aria-describedby="emailHelp" required/>
+  </div>
+  <div class="form-group">
+    <label for="kicker">Kicker</label>
+    <InputText type="text" @bind-Value="punViewModel.Kicker"  class="form-control" id="kicker" />
+  </div>
+  <button type="submit" class="btn btn-primary">Get it?</button>
+</EditForm>
+
+@code {
+    private PunViewModel punViewModel = new PunViewModel();
+
+    private async void onSubmit()
+    {
+        await _punService.AddPun(punViewModel);
+        punViewModel.Kicker = "";
+        punViewModel.Lead = "";
+    }
+}

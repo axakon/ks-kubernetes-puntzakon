@@ -1,0 +1,61 @@
+﻿@page "/fetchdata"
+
+@using puntman.Data
+@inject PunService _punService
+
+@if (puns == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="alert alert-danger fixed-bottom" hidden="@string.IsNullOrEmpty(ErrorMessage)" role="alert">
+    @ErrorMessage
+    </div>
+    <div class="alert alert-primary fixed-bottom" hidden="@string.IsNullOrEmpty(SuccessMessage)" role="alert">
+    @SuccessMessage
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Lead</th>
+                <th>Kicker</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pun in puns)
+            {
+                <tr>
+                    <td>@pun.Lead</td>
+                    <td>@pun.Kicker</td>
+                    <td><button type="submit" @onclick="@(e => OnSend(pun))" class="btn btn-primary">Share with Sebastian</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Models.PunViewModel> puns;
+    private string ErrorMessage = "";
+    private string SuccessMessage = "";
+    protected override async Task OnInitializedAsync()
+    {
+        puns = (await _punService.GetPuns()).Select(p => Models.PunViewModel.From(p));
+    }
+
+    protected void OnSend(Models.PunViewModel pun)
+    {
+       var success = _punService.SendPun(pun);
+       if(success)
+       {
+           ErrorMessage = "";
+           SuccessMessage = "Successfully sent Pun to Sebastian!";
+       }
+       else
+       {
+           SuccessMessage = "";
+           ErrorMessage = "Failed to send pun since it's already been sent!";
+       }
+    }
+}

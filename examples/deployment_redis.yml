@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: punter-redis
+  labels:
+    app: redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: punter-redis
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: punter-redis
+  labels:
+    app: punter-redis
+spec:
+  selector:
+    matchLabels:
+      app: punter-redis
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: punter-redis
+    spec:
+      containers:
+      - image: redis:6.0.8
+        name: punter-redis
+        ports:
+        - containerPort: 6379
+          name: punter-redis
